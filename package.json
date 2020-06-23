@@ -4,5 +4,8 @@
   "main": "index.js",
   "repository": "https://github.com/tokinonagare/game_record_win_and_lose_relationship.git",
   "author": "Tokinonagare <timemahou@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "26.0.1"
+  }
 }
