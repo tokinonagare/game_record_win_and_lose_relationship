@@ -49,7 +49,7 @@ const generateRelationship = partners => {
     } = winner
 
     if (winnerAmount === 0) {
-      addPartnerProp(id, [], players)
+      addPartnerProp(id, [])
       continue
     }
 
@@ -78,7 +78,7 @@ const generateRelationship = partners => {
         name: winnerName,
         amount: loserAmount
       })
-      addPartnerProp(loserId, loserPartner, players)
+      addPartnerProp(loserId, loserPartner)
       loserPartner = []
     } else if (remainder === 0) {
       winnerPartner.push({
@@ -91,8 +91,8 @@ const generateRelationship = partners => {
         name: winnerName,
         amount: -winnerAmount
       })
-      addPartnerProp(winnerId, winnerPartner, players)
-      addPartnerProp(loserId, loserPartner, players)
+      addPartnerProp(winnerId, winnerPartner)
+      addPartnerProp(loserId, loserPartner)
       winnerPartner = []
       loserPartner = []
     } else {
@@ -111,7 +111,7 @@ const generateRelationship = partners => {
         name: loserName,
         amount: winnerAmount
       })
-      addPartnerProp(winnerId, winnerPartner, players)
+      addPartnerProp(winnerId, winnerPartner)
       winnerPartner = []
     }
   }
