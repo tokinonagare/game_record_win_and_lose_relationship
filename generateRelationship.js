@@ -1,64 +1,121 @@
-function generateRelationship(partners) {
-    return [
-        {
-            id: 'd76c9b50-d47f-4fe2-b8fa-0d20dce36de5',
-            name: '.******.',
-            amount: 214,
-            partner: [
-                {
-                    id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
-                    name: 'la',
-                    amount: 112
-                },
-                {
-                    id: '726d7620-0775-4dd7-92a3-798ec498c902',
-                    name: 'QAQ',
-                    amount: 102
-                }
-            ]
-        },
-        {
-            id: '2e2e74bb-534d-4ef3-a8cc-2947b7ec52ca',
-            name: '小米qaq',
-            amount: 259,
-            partner: [
-                {
-                    id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
-                    name: 'la',
-                    amount: 259
-                }
-            ]
-        },
-        {
-            id: '726d7620-0775-4dd7-92a3-798ec498c902',
-            name: 'QAQ',
-            amount: -102,
-            partner: [
-                {
-                    id: 'd76c9b50-d47f-4fe2-b8fa-0d20dce36de5',
-                    name: '.******.',
-                    amount: -102
-                }
-            ]
-        },
-        {
-            id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
-            name: 'la',
-            amount: -371,
-            partner: [
-                {
-                    id: '2e2e74bb-534d-4ef3-a8cc-2947b7ec52ca',
-                    name: '小米qaq',
-                    amount: -259
-                },
-                {
-                    id: 'd76c9b50-d47f-4fe2-b8fa-0d20dce36de5',
-                    name: '.******.',
-                    amount: -112
-                }
-            ]
-        }
-    ]
+const sortByAmount = ({ amount: aAmount }, { amount: bAmount }) => {
+  if (aAmount > bAmount) return 1
+  if (aAmount < bAmount) return -1
+  return 0
 }
 
-module.exports = generateRelationship;
+const deepCopy = value => (
+  JSON.parse(JSON.stringify(value))
+)
+
+// 按照 amount 划分出赢家/输家
+const classifyPlayers = players => {
+  const winners = []
+  const losers = []
+  players.forEach(player => {
+    const { amount } = player
+    if (amount >= 0) winners.push({ ...player })
+    else losers.push({ ...player })
+  })
+  winners.sort(sortByAmount)
+  losers.sort(sortByAmount).reverse()
+  // 深拷贝一份 players 避免修改赢/输家 amount 值存在的问题
+  const newPlayers = deepCopy(winners.concat(losers))
+  return { winners, losers, players: newPlayers }
+}
+
+const generateRelationship = partners => {
+  const { winners, losers, players } = classifyPlayers(partners)
+
+  // 添加 partner 属性
+  const addPartnerProp = (id, partner) => {
+    players.forEach(player => {
+      if (player.id === id) player.partner = partner
+    })
+  }
+
+  // 赢家赢了哪些输家
+  let winnerPartner = []
+  // 输家输给了哪些赢家
+  let loserPartner = []
+
+  // 取赢家进行凑数
+  while (winners.length) {
+    const winner = winners.pop()
+    const {
+      id: winnerId,
+      name: winnerName,
+      amount: winnerAmount
+    } = winner
+
+    if (winnerAmount === 0) {
+      addPartnerProp(id, [], players)
+      continue
+    }
+
+    const loser = losers.pop()
+    const {
+      id: loserId,
+      name: loserName,
+      amount: loserAmount
+    } = loser
+
+    const remainder = winnerAmount + loserAmount
+    // 余数为正：赢家赢了多个输家
+    if (remainder > 0) {
+      winnerPartner.push({
+        id: loserId,
+        name: loserName,
+        amount: -loserAmount
+      })
+      // 放回赢家数组 凑其他输家
+      winner.amount = remainder
+      winners.push(winner)
+
+      // 当前赢家就是当前输家的唯一 partner
+      loserPartner.push({
+        id: winnerId,
+        name: winnerName,
+        amount: loserAmount
+      })
+      addPartnerProp(loserId, loserPartner, players)
+      loserPartner = []
+    } else if (remainder === 0) {
+      winnerPartner.push({
+        id: loserId,
+        name: loserName,
+        amount: winnerAmount
+      })
+      loserPartner.push({
+        id: winnerId,
+        name: winnerName,
+        amount: -winnerAmount
+      })
+      addPartnerProp(winnerId, winnerPartner, players)
+      addPartnerProp(loserId, loserPartner, players)
+      winnerPartner = []
+      loserPartner = []
+    } else {
+      // 输家输给了多个赢家
+      loserPartner.push({
+        id: winnerId,
+        name: winnerName,
+        amount: -winnerAmount
+      })
+      // 放回输家数组 凑其他赢家
+      loser.amount = remainder
+      losers.push(loser)
+
+      winnerPartner.push({
+        id: loserId,
+        name: loserName,
+        amount: winnerAmount
+      })
+      addPartnerProp(winnerId, winnerPartner, players)
+      winnerPartner = []
+    }
+  }
+  return players
+}
+
+module.exports = generateRelationship
