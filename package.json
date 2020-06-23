@@ -1,0 +1,8 @@
+{
+  "name": "game_record_win_and_lose_relationship",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/tokinonagare/game_record_win_and_lose_relationship.git",
+  "author": "Tokinonagare <timemahou@gmail.com>",
+  "license": "MIT"
+}
