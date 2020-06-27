@@ -26,7 +26,6 @@ const classifyPlayers = players => {
 
 const generateRelationship = partners => {
   const { winners, losers, players } = classifyPlayers(partners)
-
   // 添加 partner 属性
   const addPartnerProp = (id, partner) => {
     players.forEach(player => {
@@ -86,31 +85,22 @@ const generateRelationship = partners => {
       })
       addPartnerProp(loserId, loserPartner)
       loserPartner = []
-    } else if (remainder === 0) {
-      winnerPartner.push({
-        id: loserId,
-        name: loserName,
-        amount: winnerAmount
-      })
-      loserPartner.push({
-        id: winnerId,
-        name: winnerName,
-        amount: -winnerAmount
-      })
-      addPartnerProp(winnerId, winnerPartner)
-      addPartnerProp(loserId, loserPartner)
-      winnerPartner = []
-      loserPartner = []
     } else {
-      // 输家输给了多个赢家
       loserPartner.push({
         id: winnerId,
         name: winnerName,
         amount: -winnerAmount
       })
-      // 放回输家数组 凑其他赢家
-      loser.amount = remainder
-      losers.push(loser)
+
+      if (remainder === 0) {
+        addPartnerProp(loserId, loserPartner)
+        loserPartner = []
+      } else {
+        // 输家输给了多个赢家
+        // 放回输家数组 凑其他赢家
+        loser.amount = remainder
+        losers.push(loser)
+      }
 
       winnerPartner.push({
         id: loserId,
