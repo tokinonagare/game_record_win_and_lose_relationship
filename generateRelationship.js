@@ -21,105 +21,86 @@ const classifyPlayers = players => {
   losers.sort(sortByAmount).reverse()
   // 深拷贝一份 players 避免修改赢/输家 amount 值存在的问题
   const newPlayers = deepCopy(winners.concat(losers))
-  return { winners, losers, players: newPlayers }
+  return [winners, losers, newPlayers]
+}
+
+// 修改玩家 partner 属性
+const modifyPartner = (id, newPartner, players) => {
+  const current = players.find(player => player.id === id)
+  const { partner = [] } = current
+  partner.push(newPartner)
+  current.partner = partner
+}
+
+/**
+ * 凑玩家 amount 数
+ * 赢多了/输多了 分不均的情况只记录给了多少筹码
+ * 
+ * @param {Array} winners
+ * @param {Array} losers
+ * @param {Array} players
+ */
+const markUpAmount = (winners, losers, players) => {
+  // 取赢家
+  const winner = winners.pop()
+  const {
+    id: winnerId,
+    name: winnerName,
+    amount: winnerAmount
+  } = winner
+  if (winnerAmount === 0) {
+    modifyPartner(id, [], players)
+  }
+  // 取输家
+  const loser = losers.pop()
+  const {
+    id: loserId,
+    name: loserName,
+    amount: loserAmount
+  } = loser
+  // 剩余筹码
+  const remainder = winnerAmount + loserAmount
+  // 余数为正：赢家赢了多个输家(当前赢家的 partner 不只一个输家)
+  if (remainder > 0) {
+    modifyPartner(winnerId, {
+      id: loserId,
+      name: loserName,
+      amount: -loserAmount
+    }, players)
+    modifyPartner(loserId, {
+      id: winnerId,
+      name: winnerName,
+      amount: loserAmount
+    }, players)
+    // 放回赢家数组 凑其他输家
+    winner.amount = remainder
+    winners.push(winner)
+  } else {
+    modifyPartner(winnerId, {
+      id: loserId,
+      name: loserName,
+      amount: winnerAmount
+    }, players)
+    modifyPartner(loserId, {
+      id: winnerId,
+      name: winnerName,
+      amount: -winnerAmount
+    }, players)
+    if (remainder !== 0) {
+      // 输家输给了多个赢家
+      // 放回输家数组 凑其他赢家
+      loser.amount = remainder
+      losers.push(loser)
+    }
+  }
+  if (winners.length && losers.length) {
+    return markUpAmount(winners, losers, players)
+  }
+  return players
 }
 
 const generateRelationship = partners => {
-  const { winners, losers, players } = classifyPlayers(partners)
-  // 添加 partner 属性
-  const addPartnerProp = (id, partner) => {
-    players.forEach(player => {
-      if (player.id === id) player.partner = partner
-    })
-  }
-
-  // 赢家赢了哪些输家
-  let winnerPartner = []
-  // 输家输给了哪些赢家
-  let loserPartner = []
-
-  // 取赢家进行凑数 输家可能有没给出的，不处理
-  while (winners.length) {
-    const winner = winners.pop()
-    const {
-      id: winnerId,
-      name: winnerName,
-      amount: winnerAmount
-    } = winner
-
-    if (winnerAmount === 0) {
-      addPartnerProp(winnerId, [])
-      continue
-    }
-    // 输家已经凑完 还有多余赢家
-    if (!losers.length) {
-      addPartnerProp(winnerId, winnerPartner)
-      winnerPartner = []
-      continue
-    }
-
-    const loser = losers.pop()
-    const {
-      id: loserId,
-      name: loserName,
-      amount: loserAmount
-    } = loser
-
-    const remainder = winnerAmount + loserAmount
-    // 余数为正：赢家赢了多个输家
-    if (remainder > 0) {
-      winnerPartner.push({
-        id: loserId,
-        name: loserName,
-        amount: -loserAmount
-      })
-      // 放回赢家数组 凑其他输家
-      winner.amount = remainder
-      winners.push(winner)
-
-      // 当前赢家就是当前输家的唯一 partner
-      loserPartner.push({
-        id: winnerId,
-        name: winnerName,
-        amount: loserAmount
-      })
-      addPartnerProp(loserId, loserPartner)
-      loserPartner = []
-    } else {
-      loserPartner.push({
-        id: winnerId,
-        name: winnerName,
-        amount: -winnerAmount
-      })
-
-      if (remainder === 0) {
-        addPartnerProp(loserId, loserPartner)
-        loserPartner = []
-      } else {
-        // 输家输给了多个赢家
-        // 放回输家数组 凑其他赢家
-        loser.amount = remainder
-        losers.push(loser)
-      }
-
-      winnerPartner.push({
-        id: loserId,
-        name: loserName,
-        amount: winnerAmount
-      })
-      addPartnerProp(winnerId, winnerPartner)
-      winnerPartner = []
-    }
-  }
-
-  // 如果输家还存在没凑齐的筹码
-  if (loserPartner.length) {
-    const loser = losers.pop()
-    const { id } = loser
-    addPartnerProp(id, loserPartner)
-  }
-
-  return players
+  return markUpAmount(...classifyPlayers(partners))
 }
 
 module.exports = generateRelationship
