@@ -24,8 +24,8 @@ const classifyPlayers = players => {
   return [winners, losers, newPlayers]
 }
 
-// 修改玩家 partner 属性
-const modifyPartner = (id, newPartner, players) => {
+// 添加玩家 partner
+const addPartner = (id, newPartner, players) => {
   const current = players.find(player => player.id === id)
   const { partner = [] } = current
   partner.push(newPartner)
@@ -48,49 +48,48 @@ const markUpAmount = (winners, losers, players) => {
     name: winnerName,
     amount: winnerAmount
   } = winner
-  if (winnerAmount === 0) {
-    modifyPartner(id, [], players)
-  }
-  // 取输家
-  const loser = losers.pop()
-  const {
-    id: loserId,
-    name: loserName,
-    amount: loserAmount
-  } = loser
-  // 剩余筹码
-  const remainder = winnerAmount + loserAmount
-  // 余数为正：赢家赢了多个输家(当前赢家的 partner 不只一个输家)
-  if (remainder > 0) {
-    modifyPartner(winnerId, {
+  if (winnerAmount !== 0) {
+    // 取输家
+    const loser = losers.pop()
+    const {
       id: loserId,
       name: loserName,
-      amount: -loserAmount
-    }, players)
-    modifyPartner(loserId, {
-      id: winnerId,
-      name: winnerName,
       amount: loserAmount
-    }, players)
-    // 放回赢家数组 凑其他输家
-    winner.amount = remainder
-    winners.push(winner)
-  } else {
-    modifyPartner(winnerId, {
-      id: loserId,
-      name: loserName,
-      amount: winnerAmount
-    }, players)
-    modifyPartner(loserId, {
-      id: winnerId,
-      name: winnerName,
-      amount: -winnerAmount
-    }, players)
-    if (remainder !== 0) {
-      // 输家输给了多个赢家
-      // 放回输家数组 凑其他赢家
-      loser.amount = remainder
-      losers.push(loser)
+    } = loser
+    // 剩余筹码
+    const remainder = winnerAmount + loserAmount
+    // 余数为正：赢家赢了多个输家(当前赢家的 partner 不只一个输家)
+    if (remainder > 0) {
+      addPartner(winnerId, {
+        id: loserId,
+        name: loserName,
+        amount: -loserAmount
+      }, players)
+      addPartner(loserId, {
+        id: winnerId,
+        name: winnerName,
+        amount: loserAmount
+      }, players)
+      // 放回赢家数组 凑其他输家
+      winner.amount = remainder
+      winners.push(winner)
+    } else {
+      addPartner(winnerId, {
+        id: loserId,
+        name: loserName,
+        amount: winnerAmount
+      }, players)
+      addPartner(loserId, {
+        id: winnerId,
+        name: winnerName,
+        amount: -winnerAmount
+      }, players)
+      if (remainder !== 0) {
+        // 输家输给了多个赢家
+        // 放回输家数组 凑其他赢家
+        loser.amount = remainder
+        losers.push(loser)
+      }
     }
   }
   if (winners.length && losers.length) {
