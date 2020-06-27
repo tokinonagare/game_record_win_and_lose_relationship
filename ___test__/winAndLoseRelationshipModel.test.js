@@ -1,4 +1,5 @@
 const generateRelationship = require("../generateRelationship");
+const switchPlayersData = require("../switchPlayersData");
 
 test('处理数据正确', () => {
     const partners = [
@@ -85,3 +86,43 @@ test('处理数据正确', () => {
         }
     ])
 });
+
+test('转换 players 数据', () => {
+    const players = [
+        {
+            setNickname: [Function],
+            id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
+            score: 71,
+            rounds: 8,
+            isLose: false,
+            isBreakeven: false,
+            getScore: '+71',
+            nickname: 'peking'
+        },
+        {
+            setNickname: [Function],
+            id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
+            score: -82,
+            rounds: 8,
+            isLose: true,
+            isBreakeven: false,
+            getScore: -82,
+            nickname: 'la'
+        }
+    ];
+
+    expect(switchPlayersData(players)).toStrictEqual([
+        {
+            id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
+            name: 'peking',
+            amount: 71
+        },
+        {
+            id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
+            name: 'la',
+            amount: -82
+        }
+    ])
+});
+
+
