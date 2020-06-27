@@ -39,7 +39,7 @@ const generateRelationship = partners => {
   // 输家输给了哪些赢家
   let loserPartner = []
 
-  // 取赢家进行凑数
+  // 取赢家进行凑数 输家可能有没给出的，不处理
   while (winners.length) {
     const winner = winners.pop()
     const {
@@ -49,7 +49,13 @@ const generateRelationship = partners => {
     } = winner
 
     if (winnerAmount === 0) {
-      addPartnerProp(id, [])
+      addPartnerProp(winnerId, [])
+      continue
+    }
+    // 输家已经凑完 还有多余赢家
+    if (!losers.length) {
+      addPartnerProp(winnerId, winnerPartner)
+      winnerPartner = []
       continue
     }
 
@@ -115,6 +121,14 @@ const generateRelationship = partners => {
       winnerPartner = []
     }
   }
+
+  // 如果输家还存在没凑齐的筹码
+  if (loserPartner.length) {
+    const loser = losers.pop()
+    const { id } = loser
+    addPartnerProp(id, loserPartner)
+  }
+
   return players
 }
 
