@@ -1,7 +1,11 @@
 const generateRelationship = require('./generateRelationship');
-const switchPlayersData = require('./switchPlayersData');
+const switchPlayersToPartners = require('./switchPlayersData');
+
+const generateGameRecordWinAndLoseRelationShip = (players) => {
+    const partners = switchPlayersToPartners(players);
+    return generateRelationship(partners)
+};
 
 export {
-    generateRelationship,
-    switchPlayersData
+    generateGameRecordWinAndLoseRelationShip
 }
