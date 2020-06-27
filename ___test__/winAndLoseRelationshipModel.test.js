@@ -126,3 +126,45 @@ test('转换 players 数据', () => {
 });
 
 
+test('处理分不平的数据', () => {
+    const partners = [
+        {
+            id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
+            name: 'peking',
+            amount: 1485
+        },
+        {
+            id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
+            name: 'la',
+            amount: -597
+        }
+    ];
+
+    expect(generateRelationship(partners)).toStrictEqual([
+        {
+            id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
+            name: 'peking',
+            amount: 1485,
+            partner: [
+                {
+                    id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
+                    name: 'la',
+                    amount: 597
+                }
+            ]
+        },
+        {
+            id: '6d2ea3a0-33a1-45ff-b4c7-ac75cc6019ce',
+            name: 'la',
+            amount: -597,
+            partner: [
+                {
+                    id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
+                    name: 'peking',
+                    amount: -597
+                }
+            ]
+        },
+    ])
+})
+
