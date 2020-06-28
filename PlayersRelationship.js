@@ -100,7 +100,7 @@ class PlayersRelationship {
     }
   }
 
-  generateRelationship() {
+  generateRelationships() {
     this.classifyPlayers()
     this.markUpAmount()
     return this.players

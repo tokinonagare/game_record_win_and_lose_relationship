@@ -1,12 +1,24 @@
 const PlayersRelationship = require('./PlayersRelationship');
 const switchPlayersToPartners = require('./switchPlayersData');
 
-const generateGameRecordWinAndLoseRelationShip = (players) => {
+const generateGameRecordWinAndLoseRelationships = (players) => {
     const partners = switchPlayersToPartners(players);
     const relationship = new PlayersRelationship(partners)
-    return relationship.generateRelationship()
+    return relationship.generateRelationships()
+};
+
+const generatePlayerWinAndLoseRelationship = (players, playerId) => {
+    const partners = switchPlayersToPartners(players);
+    const playersRelationship = new PlayersRelationship(partners);
+    const relationships = playersRelationship.generateRelationships();
+    const currentPlayerRelationship = relationships.find((relationship) => relationship.id === playerId);
+    if (currentPlayerRelationship) {
+        return currentPlayerRelationship.partner;
+    }
+    return [];
 };
 
 export {
-    generateGameRecordWinAndLoseRelationShip
+    generateGameRecordWinAndLoseRelationships,
+    generatePlayerWinAndLoseRelationship
 }

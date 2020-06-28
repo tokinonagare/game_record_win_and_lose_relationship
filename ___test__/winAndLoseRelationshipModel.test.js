@@ -26,7 +26,7 @@ test('处理数据正确', () => {
     ];
 
     const relationship = new PlayersRelationship(partners)
-    expect(relationship.generateRelationship()).toStrictEqual([
+    expect(relationship.generateRelationships()).toStrictEqual([
         {
             id: 'd76c9b50-d47f-4fe2-b8fa-0d20dce36de5',
             name: '.******.',
@@ -142,7 +142,7 @@ test('处理分不平的数据（赢太多）', () => {
     ];
 
     const relationship = new PlayersRelationship(partners)
-    expect(relationship.generateRelationship()).toStrictEqual([
+    expect(relationship.generateRelationships()).toStrictEqual([
         {
             id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
             name: 'peking',
@@ -185,7 +185,7 @@ test('处理分不平的数据（输太多）', () => {
     ];
 
     const relationship = new PlayersRelationship(partners)
-    expect(relationship.generateRelationship()).toStrictEqual([
+    expect(relationship.generateRelationships()).toStrictEqual([
         {
             id: '15fea3a9-f872-4c9e-81a5-d3daf01e5ee9',
             name: 'peking',
