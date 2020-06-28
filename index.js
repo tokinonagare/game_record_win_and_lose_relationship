@@ -7,7 +7,7 @@ const generateGameRecordWinAndLoseRelationships = (players) => {
     return relationship.generateRelationships()
 };
 
-const generatePlayerWinAndLoseRelationship = (players, playerId) => {
+const generatePlayerWinAndLoseRelationships = (players, playerId) => {
     const partners = switchPlayersToPartners(players);
     const playersRelationship = new PlayersRelationship(partners);
     const relationships = playersRelationship.generateRelationships();
@@ -20,5 +20,5 @@ const generatePlayerWinAndLoseRelationship = (players, playerId) => {
 
 export {
     generateGameRecordWinAndLoseRelationships,
-    generatePlayerWinAndLoseRelationship
+    generatePlayerWinAndLoseRelationships
 }
